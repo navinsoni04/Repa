@@ -1,0 +1,11 @@
+{
+  "name": "ms-jewellers-itkhori",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@netlify/blobs": "latest",
+    "@netlify/database": "latest",
+    "@netlify/identity": "^1.2.0"
+  }
+}
