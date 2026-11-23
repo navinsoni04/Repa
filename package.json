@@ -4,8 +4,11 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@netlify/blobs": "latest",
-    "@netlify/database": "latest",
+    "@netlify/blobs": "11.1.9",
+    "@netlify/database": "^2.0.3",
     "@netlify/identity": "^1.2.0"
+  },
+  "overrides": {
+    "@netlify/otel": "7.0.8"
   }
 }
