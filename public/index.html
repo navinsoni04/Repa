@@ -341,9 +341,10 @@ function authDialog(title,fields,action,submit,extras='',locked=false){
 const emailField=email=>`<label for="adminEmail">Email</label><input id="adminEmail" name="email" type="email" value="${esc(email)}" autocomplete="username" autocapitalize="none" required style="width:100%;margin:4px 0 10px">`;
 const passwordField=(label,autocomplete)=>`<label for="adminPassword">${label}</label><input id="adminPassword" name="password" type="password" autocomplete="${autocomplete}" required style="width:100%;margin:4px 0 10px">`;
 function showLogin(email=''){
-  const setupHint='<p style="font-size:13px;color:var(--mute)">First time signing in? Open the admin invitation email and set your password first.</p>';
+  const setupHint='<p style="font-size:13px;color:var(--mute)">Sign in with the shop admin email and password. Use “Forgot password?” to change it.</p>';
   authDialog('Admin login',setupHint+emailField(email)+passwordField('Password','current-password'),'Sign in',async form=>{
     const auth=await identity();
+    try{await api('/api/admin/setup',{method:'POST',body:{}})}catch{}
     try{await auth.login(form.elements.email.value.trim(),form.elements.password.value)}catch{throw new Error('Email or password incorrect, or the admin invite has not been accepted.')}
     if(!await checkAdmin()){
       await auth.logout();
