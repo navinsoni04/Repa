@@ -5,6 +5,12 @@ import { fail, json, readJson } from "../lib/http.mjs";
 const db = getDatabase();
 const MAX_JSON = 6_000_000;
 const str = (v, max) => typeof v === "string" && v.length <= max;
+const offerText = (value, max) => str(value, max) && value.trim().length > 0;
+const validOffers = (offers) =>
+  offers === undefined ||
+  (Array.isArray(offers) &&
+    offers.length <= 20 &&
+    offers.every((offer) => offer && offerText(offer.title, 100) && offerText(offer.details, 400)));
 
 // Only accept the shape the website actually uses.
 const validCatalog = (d) =>
@@ -13,6 +19,7 @@ const validCatalog = (d) =>
   d.shop &&
   typeof d.shop === "object" &&
   !Array.isArray(d.shop) &&
+  validOffers(d.shop.offers) &&
   Array.isArray(d.items) &&
   d.items.length <= 2000 &&
   d.items.every(
