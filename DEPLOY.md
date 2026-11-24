@@ -10,7 +10,8 @@ Drag-and-drop deploys skip Functions and the Database. Use one of:
 Build command: leave empty. Publish directory: `public`.
 
 ## 2. Configure admin sign-in
-The project uses Netlify Identity. Keep registration invite-only and leave autoconfirm off.
+The project uses Netlify Identity. The backend blocks self-registration and sign-in with
+any email other than the designated owner. Catalog browsing and review submission remain public.
 Set `ADMIN_DEFAULT_PASSWORD` as a secret available to Netlify Functions in the deploy
 contexts where first sign-in is needed. Never commit or share the password.
 
@@ -24,7 +25,7 @@ Open **Admin** on the site and sign in with the designated email and the initial
 password. The first successful sign-in creates the Identity account with the `admin`
 role. If the Identity account already exists, it needs the `admin` role and its existing
 password. The initial password never overwrites an existing account's password.
-Use **Forgot password?** to reset an existing password by email.
+Use **Forgot password?** to choose a new password by email, especially after first sign-in.
 
 ## Remove old settings
 Netlify -> Environment variables: delete any old admin-email/role variables

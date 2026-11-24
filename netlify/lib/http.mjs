@@ -21,13 +21,4 @@ export const readJson = async (req, maxBytes = 6_000_000) => {
   }
 };
 
-// Browsers always send Origin on cross-site writes; reject if it is not this site.
-export const sameOrigin = (req) => {
-  const origin = req.headers.get("origin");
-  if (!origin) return true;
-  try {
-    return new URL(origin).host === new URL(req.url).host;
-  } catch {
-    return false;
-  }
-};
+export const sameOrigin = (req) => req.headers.get("origin") === new URL(req.url).origin;

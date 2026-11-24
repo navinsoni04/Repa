@@ -4,5 +4,5 @@
 // mistyped dashboard variable can never lock the owner out again.)
 export const ADMIN_EMAIL = "navinkumarsoni04@gmail.com";
 
-export const normalizeEmail = (value) =>
-  typeof value === "string" ? value.trim().toLowerCase() : "";
+export const isOwnerEmail = (email) =>
+  typeof email === "string" && email.trim().toLowerCase() === ADMIN_EMAIL;
