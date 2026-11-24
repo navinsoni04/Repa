@@ -1,9 +1,9 @@
 import { getUser } from "@netlify/identity";
-import { ADMIN_EMAIL, normalizeEmail } from "./config.mjs";
+import { isOwnerEmail } from "./config.mjs";
 import { fail, sameOrigin } from "./http.mjs";
 
 export const isShopAdmin = (user) =>
-  normalizeEmail(user?.email) === ADMIN_EMAIL && user.roles?.includes("admin") === true;
+  isOwnerEmail(user?.email) && Array.isArray(user.roles) && user.roles.includes("admin");
 
 export const currentAdmin = async () => {
   const user = await getUser();

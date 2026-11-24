@@ -1,8 +1,8 @@
 import { createHash, timingSafeEqual } from "node:crypto";
-import { admin as identityAdmin, AuthError, login, verifyRequestOrigin } from "@netlify/identity";
+import { admin as identityAdmin, AuthError, login } from "@netlify/identity";
 import { isShopAdmin } from "../lib/auth.mjs";
-import { ADMIN_EMAIL, normalizeEmail } from "../lib/config.mjs";
-import { fail, json, readJson } from "../lib/http.mjs";
+import { ADMIN_EMAIL, isOwnerEmail } from "../lib/config.mjs";
+import { fail, json, readJson, sameOrigin } from "../lib/http.mjs";
 
 const invalidCredentials = () => fail(401, "Email or password is incorrect.");
 const digest = (value) => createHash("sha256").update(value).digest();
@@ -17,16 +17,12 @@ const loginUnavailable = (error) => error instanceof AuthError && error.status =
 
 export default async (req, context) => {
   if (req.method !== "POST") return fail(405, "Method not allowed.");
-  try {
-    verifyRequestOrigin(req);
-  } catch {
-    return fail(403, "Cross-site request blocked.");
-  }
+  if (!sameOrigin(req)) return fail(403, "Cross-site request blocked.");
 
   const { value, error } = await readJson(req, 4_096);
   if (error) return error;
   const password = value?.password;
-  if (normalizeEmail(value?.email) !== ADMIN_EMAIL || typeof password !== "string" || !password) {
+  if (!isOwnerEmail(value?.email) || typeof password !== "string" || !password) {
     return invalidCredentials();
   }
 
@@ -38,11 +34,16 @@ export default async (req, context) => {
     if (!matchesInitialPassword(password)) return invalidCredentials();
 
     try {
-      await identityAdmin.createUser({
+      const owner = await identityAdmin.createUser({
         email: ADMIN_EMAIL,
         password,
         data: { app_metadata: { roles: ["admin"] } },
       });
+      if (!isShopAdmin(owner)) {
+        await identityAdmin.updateUser(owner.id, {
+          app_metadata: { ...owner.appMetadata, roles: ["admin"] },
+        });
+      }
     } catch (error) {
       if (!(error instanceof AuthError) || ![400, 409, 422].includes(error.status)) {
         return loginUnavailable(error);
