@@ -343,23 +343,15 @@ const passwordField=(label,autocomplete)=>`<label for="adminPassword">${label}</
 function showLogin(email=''){
   const setupHint='<p style="font-size:13px;color:var(--mute)">Sign in with the shop admin email and password. Use “Forgot password?” to change it.</p>';
   authDialog('Admin login',setupHint+emailField(email)+passwordField('Password','current-password'),'Sign in',async form=>{
-    const auth=await identity();
-    try{await api('/api/admin/setup',{method:'POST',body:{}})}catch{}
-    try{await auth.login(form.elements.email.value.trim(),form.elements.password.value)}catch{throw new Error('Email or password incorrect, or the admin invite has not been accepted.')}
-    if(!await checkAdmin()){
-      await auth.logout();
-      throw new Error('Signed in, but this account does not have the required admin role or is not the designated shop admin.');
-    }
-    admin=true;
-    try{await loadCatalog()}catch{render();alert('Could not load the catalog. Refresh before editing.');return}
-    render();
+    await api('/api/admin/login',{method:'POST',body:{email:form.elements.email.value,password:form.elements.password.value}});
+    window.location.reload();
   },'<button class="btn alt" type="button" onclick="showRecovery($(\'adminEmail\').value)">Forgot password?</button>');
 }
 function showRecovery(email=''){
   authDialog('Reset admin password',emailField(email),'Send reset link',async form=>{
     const address=form.elements.email.value.trim();
     await api('/api/admin/recovery',{method:'POST',body:{email:address}});
-    msg('If an admin account exists for this email, check your inbox and Spam folder for a reset link. For first-time setup, use the admin invitation email instead.');
+    msg('If an admin account exists for this email, check your inbox and Spam folder for a reset link. For first-time setup, sign in with the initial admin password.');
   },'<button class="btn alt" type="button" onclick="showLogin($(\'adminEmail\').value)">Back to login</button>');
 }
 function showNewPassword(auth,callback){
